@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield AI - Threat Submissions History</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="brand-icon">🛡️</div>
+      <span>CyberShield <strong style="color:var(--accent-cyan);">AI</strong></span>
+    </a>
+    
+    <div class="nav-links">
+      <a href="/#scanner" class="nav-link"><span>🔍</span> Threat Scanner</a>
+      <a href="/dashboard" class="nav-link"><span>📊</span> Analytics Dashboard</a>
+      <a href="/history" class="nav-link active"><span>🕒</span> Recent History</a>
+      <a href="/chatbot" class="nav-link"><span>💬</span> AI Assistant</a>
+    </div>
+
+    <!-- Right Corner: Theme Toggle & Admin Profile Icon -->
+    <div class="nav-right-actions">
+      <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Theme">
+        🌙
+      </button>
+
+      <div class="admin-profile-wrapper">
+        <button class="admin-avatar-btn" onclick="toggleAdminDropdown(event)" title="Admin Profile & Settings">
+          <span>👨‍💻</span>
+          <span class="admin-badge-indicator" title="Owner Device Active"></span>
+        </button>
+
+        <div id="admin-dropdown-menu" class="admin-dropdown-menu">
+          <div class="admin-dropdown-header">
+            <div class="admin-dropdown-name">
+              <span>🛡️</span> Cybersecurity Admin
+            </div>
+            <div id="admin-lock-status" class="admin-dropdown-status">
+              Checking device verification...
+            </div>
+          </div>
+          
+          <a href="/operations" class="admin-menu-item">
+            <span>🛡️</span> Security & Operations Audit
+          </a>
+          <button class="admin-menu-item" onclick="toggleAdminDropdown(); askQuick('tell me yourself'); toggleFloatingChat();">
+            <span>👤</span> View Profile & Audio Intro
+          </button>
+          <a href="/dashboard" class="admin-menu-item">
+            <span>📊</span> Operations Telemetry
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="hero" style="margin-bottom: 2rem;">
+      <div class="hero-badge">🗄️ SQLite Database Telemetry Records</div>
+      <h1 class="hero-title">Submissions & Threat History Database</h1>
+      <p class="hero-subtitle">
+        Search, filter, and audit every email, URL, and SMS text message evaluated by our AI threat engine.
+      </p>
+    </header>
+
+    <!-- Complete Database Scan History -->
+    <section class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title"><span>📜</span> Complete Scans Database Feed</h2>
+          <div id="history-count" class="history-count-badge">Loading database records...</div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <a href="/" class="sample-pill" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>➕</span> New Scan
+          </a>
+          <button class="sample-pill" onclick="loadAllDatabaseHistory()">
+            <span>🔄</span> Refresh Database
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Search & Filtering Controls -->
+      <div class="history-controls-row">
+        <input 
+          type="text" 
+          id="history-search" 
+          class="history-search-input" 
+          placeholder="🔍 Search past scans by content, ID, or channel..." 
+          oninput="renderFilteredHistory()"
+        />
+
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <label style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">Filter Severity:</label>
+          <select id="history-filter" class="tab-btn" onchange="renderFilteredHistory()" style="padding:0.4rem 0.75rem;">
+            <option value="ALL">All Records</option>
+            <option value="MALICIOUS">🚨 Malicious Only</option>
+            <option value="SUSPICIOUS">⚠️ Suspicious Only</option>
+            <option value="SAFE">🛡️ Safe Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>Scan ID</th>
+              <th>Category</th>
+              <th>Content Snippet</th>
+              <th>Threat Evaluation</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="recent-scans-tbody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-dim);">Loading full history from database...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Chatbot Toggle Button -->
+  <button class="floating-chat-toggle" onclick="toggleFloatingChat()" title="Open Cybersecurity Assistant">
+    💬
+  </button>
+
+  <!-- Floating Chatbot Popup -->
+  <div id="floating-chat-box" class="floating-chat-container">
+    <div class="chat-window" style="height: 100%;">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <span>🤖</span> CyberShield Assistant
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <div id="voice-toggle-btn" class="voice-status-pill">
+            <span>🔊</span> Voice: ON
+          </div>
+          <button onclick="toggleFloatingChat()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+        </div>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble bot">
+          👋 Hello! I am **CyberShield Assistant**. Ask me anything about phishing, safe URLs, or click below:
+          <div class="bubble-footer">
+            <span>CyberShield AI</span>
+            <button class="btn-speak" onclick="window.chatInstance.speak('Hello! I am CyberShield Assistant. Ask me anything about phishing, safe links, or security.')">🔊 Listen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-quick-pills">
+        <button class="chat-quick-pill" onclick="askQuick('tell me yourself')">👤 Tell me yourself</button>
+        <button class="chat-quick-pill" onclick="askQuick('Why was this flagged?')">🔍 Explain last scan</button>
+      </div>
+
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Ask a question..." />
+        <button id="btn-send-chat" class="btn-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>CyberShield AI • Recent Threat Submissions Database History</p>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>

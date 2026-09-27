@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield AI - Security Analytics Dashboard</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="brand-icon">🛡️</div>
+      <span>CyberShield <strong style="color:var(--accent-cyan);">AI</strong></span>
+    </a>
+
+    <div class="nav-links">
+      <a href="/#scanner" class="nav-link"><span>🔍</span> Threat Scanner</a>
+      <a href="/dashboard" class="nav-link active"><span>📊</span> Analytics Dashboard</a>
+      <a href="/history" class="nav-link"><span>🕒</span> Recent History</a>
+      <a href="/chatbot" class="nav-link"><span>💬</span> AI Assistant</a>
+    </div>
+
+    <!-- Right Corner: Theme Toggle & Admin Profile Icon -->
+    <div class="nav-right-actions">
+      <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Theme">
+        🌙
+      </button>
+
+      <div class="admin-profile-wrapper">
+        <button class="admin-avatar-btn" onclick="toggleAdminDropdown(event)" title="Admin Profile & Anomalies">
+          <span>👨‍💻</span>
+          <span class="admin-badge-indicator" title="Owner Device Active"></span>
+        </button>
+
+        <div id="admin-dropdown-menu" class="admin-dropdown-menu">
+          <div class="admin-dropdown-header">
+            <div class="admin-dropdown-name">
+              <span>🛡️</span> Cybersecurity Admin
+            </div>
+            <div id="admin-lock-status" class="admin-dropdown-status">
+              Checking device verification...
+            </div>
+          </div>
+          
+          <a href="/admin" class="admin-menu-item">
+            <span>⚙️</span> Admin & Anomaly Center
+          </a>
+          <button class="admin-menu-item" onclick="toggleAdminDropdown(); askQuick('tell me yourself'); toggleFloatingChat();">
+            <span>👤</span> View Profile & Audio Intro
+          </button>
+          <a href="/dashboard" class="admin-menu-item">
+            <span>📊</span> Security Operations Telemetry
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="hero" style="margin-bottom: 2rem;">
+      <div class="hero-badge">📊 Real-Time Telemetry & Threat Intelligence</div>
+      <h1 class="hero-title">Security Operations Dashboard</h1>
+      <p class="hero-subtitle">
+        Continuous monitoring of analyzed payloads, threat ratios, category distributions, and detected system anomalies.
+      </p>
+    </header>
+
+    <!-- Metrics Cards Grid -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon-box" style="background: var(--accent-cyan-light); color: var(--accent-cyan);">🔍</div>
+        <div>
+          <div id="stat-total-scans" class="metric-number">0</div>
+          <div class="metric-label">Total Submissions</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-box" style="background: var(--threat-malicious-bg); color: var(--threat-malicious);">🚨</div>
+        <div>
+          <div id="stat-threats-blocked" class="metric-number" style="color: var(--threat-malicious);">0</div>
+          <div class="metric-label">Malicious Threats</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-box" style="background: var(--threat-suspicious-bg); color: var(--threat-suspicious);">⚠️</div>
+        <div>
+          <div id="stat-suspicious" class="metric-number" style="color: var(--threat-suspicious);">0</div>
+          <div class="metric-label">Suspicious Flagged</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-box" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">⚡</div>
+        <div>
+          <div id="stat-anomalies" class="metric-number" style="color: #7c3aed;">0</div>
+          <div class="metric-label">Anomalies Detected</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-box" style="background: var(--threat-safe-bg); color: var(--threat-safe);">🛡️</div>
+        <div>
+          <div id="stat-avg-score" class="metric-number">0.0%</div>
+          <div class="metric-label">Average Risk Index</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-box" style="background: rgba(37, 99, 235, 0.12); color: var(--accent-blue);">💬</div>
+        <div>
+          <div id="stat-chat-queries" class="metric-number">0</div>
+          <div class="metric-label">Assistant Queries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header">
+          <h3 class="card-title"><span>🎯</span> Threat Risk Ratio Distribution</h3>
+        </div>
+        <div style="max-height: 280px; display:flex; justify-content:center; align-items:center;">
+          <canvas id="threatDistChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header">
+          <h3 class="card-title"><span>📡</span> Submissions by Channel</h3>
+        </div>
+        <div style="max-height: 280px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Stream Table (All Records) -->
+    <section class="card" style="margin-top: 2rem;">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title"><span>⚡</span> Live Threat Activity Stream Database</h3>
+          <span id="dashboard-feed-count" class="history-count-badge">Loading all telemetry records...</span>
+        </div>
+        <button class="sample-pill" onclick="fetchDashboardMetrics(); loadAllDashboardFeed();"><span>🔄</span> Refresh Telemetry</button>
+      </div>
+      <div class="table-responsive">
+        <table class="cyber-table">
+          <thead>
+            <tr>
+              <th>Scan ID</th>
+              <th>Channel</th>
+              <th>Payload Preview</th>
+              <th>Classification</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="dashboard-feed-tbody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-dim);">Loading stream...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Chatbot Toggle Button -->
+  <button class="floating-chat-toggle" onclick="toggleFloatingChat()" title="Open Assistant">💬</button>
+
+  <!-- Floating Chatbot Popup -->
+  <div id="floating-chat-box" class="floating-chat-container">
+    <div class="chat-window" style="height: 100%;">
+      <div class="chat-header">
+        <div class="chat-header-title"><span>🤖</span> CyberShield Assistant</div>
+        <button onclick="toggleFloatingChat()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble bot">
+          👋 Hello! I am online to explain threat stats or answer security questions.
+        </div>
+      </div>
+      <div class="chat-quick-pills">
+        <button class="chat-quick-pill" onclick="askQuick('tell me yourself')">👤 Tell me yourself</button>
+        <button class="chat-quick-pill" onclick="askQuick('Why was this flagged?')">🔍 Explain last scan</button>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." />
+        <button id="btn-send-chat" class="btn-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="modal-overlay" onclick="if(event.target === this) closeProfileModal()">
+    <div class="profile-card">
+      <button class="modal-close" onclick="closeProfileModal()">✕</button>
+      <div class="profile-avatar-box">👨‍💻</div>
+      <h2 id="prof-name" class="profile-name">Cybersecurity & AI Developer</h2>
+      <div id="prof-title" class="profile-title">Full-Stack AI Security Specialist</div>
+      <p id="prof-bio" class="profile-bio"></p>
+      <div id="prof-skills" class="skills-tags"></div>
+      <div class="profile-links">
+        <a id="prof-github" href="#" target="_blank" class="profile-link-btn">GitHub</a>
+        <a id="prof-linkedin" href="#" target="_blank" class="profile-link-btn">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>CyberShield AI • Security Operations & Threat Intelligence Dashboard</p>
+  </footer>
+
+  <script src="/static/js/chat.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield AI - Threat Detection & Assistant</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand" onclick="showHomeScreen()">
+      <div class="brand-icon">🛡️</div>
+      <span>CyberShield <strong style="color:var(--accent-cyan);">AI</strong></span>
+    </a>
+    
+    <div class="nav-links">
+      <a href="javascript:void(0)" class="nav-link" onclick="openScanner()"><span>🔍</span> Threat Scanner</a>
+      <a href="/dashboard" class="nav-link"><span>📊</span> Analytics Dashboard</a>
+      <a href="/history" class="nav-link"><span>🕒</span> Recent History</a>
+      <a href="/chatbot" class="nav-link"><span>💬</span> AI Assistant</a>
+    </div>
+
+    <!-- Right Corner: Theme Toggle & Admin Profile Icon -->
+    <div class="nav-right-actions">
+      <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Theme">
+        🌙
+      </button>
+
+      <div class="admin-profile-wrapper">
+        <button class="admin-avatar-btn" onclick="toggleAdminDropdown(event)" title="Admin Profile & Settings">
+          <span>👨‍💻</span>
+          <span class="admin-badge-indicator" title="Owner Device Active"></span>
+        </button>
+
+        <div id="admin-dropdown-menu" class="admin-dropdown-menu">
+          <div class="admin-dropdown-header">
+            <div class="admin-dropdown-name">
+              <span>🛡️</span> Cybersecurity Admin
+            </div>
+            <div id="admin-lock-status" class="admin-dropdown-status">
+              Checking device verification...
+            </div>
+          </div>
+          
+          <a href="/operations" class="admin-menu-item">
+            <span>🛡️</span> Security & Operations Audit
+          </a>
+          <button class="admin-menu-item" onclick="toggleAdminDropdown(); askQuick('tell me yourself'); toggleFloatingChat();">
+            <span>👤</span> View Profile & Audio Intro
+          </button>
+          <a href="/dashboard" class="admin-menu-item">
+            <span>📊</span> Operations Telemetry
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Minimalist Entering Home Page: SHOW ONLY APP NAME & START OPTION -->
+    <section id="entry-home-screen" class="entry-home-container">
+      <h1 class="entry-home-title">AI-Powered Phishing &amp; Threat Detection Web App</h1>
+      <button class="btn-home-start" onclick="openScanner()">
+        <span>🚀</span> START
+      </button>
+    </section>
+
+    <!-- Threat Scanner Workspace (Opens upon clicking START) -->
+    <div id="scanner-workspace" class="scanner-workspace-container">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <button class="sample-pill" onclick="showHomeScreen()" style="font-size:0.82rem;">
+          <span>⬅️</span> Back to Welcome Screen
+        </button>
+        <span class="sample-pill safe" style="font-size:0.75rem;">AI Threat Engine Active</span>
+      </div>
+
+      <!-- Hero Banner -->
+      <header class="hero">
+        <div class="hero-badge">⚡ Real-Time Machine Learning Defense Engine</div>
+        <h2 class="hero-title" style="font-size: 2rem;">Security Threat Diagnostic Scanner</h2>
+        <p class="hero-subtitle">
+          Analyze suspicious emails, messages, and URLs with our hybrid NLP classification model and lexical security heuristics to prevent cyber attacks instantly.
+        </p>
+      </header>
+
+    <!-- Scanner Input Card -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title"><span>🎯</span> Submit Content for Real-Time Analysis</h2>
+        <div class="input-tabs">
+          <button type="button" class="tab-btn active" data-mode="text">Email / Message</button>
+          <button type="button" class="tab-btn" data-mode="url">Website URL</button>
+        </div>
+      </div>
+
+      <form id="scan-form">
+        <textarea 
+          id="scan-input" 
+          class="scan-textarea" 
+          placeholder="Paste suspicious email body, SMS text message, or customer notice..."
+          required
+        ></textarea>
+
+        <!-- Quick Test Samples Toolbar -->
+        <div class="sample-pills-row">
+          <span class="sample-label">⚡ Quick Samples:</span>
+          <button type="button" class="sample-pill malicious" onclick="loadSample('phish_email')">🚨 Phishing Email</button>
+          <button type="button" class="sample-pill malicious" onclick="loadSample('malicious_url')">⚠️ Banking Phish Link</button>
+          <button type="button" class="sample-pill malicious" onclick="loadSample('fake_sms')">📱 Fake Delivery SMS</button>
+          <button type="button" class="sample-pill safe" onclick="loadSample('safe_email')">✅ Benign Meeting Email</button>
+          <button type="button" class="sample-pill safe" onclick="loadSample('safe_url')">✅ Official Safe URL</button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; flex-wrap:wrap; gap:0.75rem;">
+          <button type="submit" id="btn-submit-scan" class="btn-scan">
+            <span>🛡️</span> Analyze Threat
+          </button>
+          <span style="font-size: 0.82rem; color: var(--text-dim);">
+            Protected by Automated Anomaly & Rate Limiting System
+          </span>
+        </div>
+      </form>
+    </section>
+
+    <!-- Scan Results Card -->
+    <section id="result-card" class="result-card">
+      <div class="result-header">
+        <div>
+          <span style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase;">Diagnostic Evaluation</span>
+          <h3 style="font-size: 1.4rem; color: var(--text-main);">Security Risk Assessment</h3>
+        </div>
+        <div id="result-badge" class="risk-badge Safe">🛡️ Safe Evaluation</div>
+      </div>
+
+      <div class="score-display-box">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Composite Risk Score</div>
+          <div id="result-score-val" class="score-dial">0.0%</div>
+        </div>
+        <div class="score-details">
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted);">
+            <span>Threat Severity Meter</span>
+            <span>Confidence: <strong id="result-conf-val" style="color:var(--accent-cyan);">95%</strong></span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="result-progress-fill" class="progress-bar-fill"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-dim);">
+            <span>0% Safe</span>
+            <span>Channel: <strong id="result-type-val" style="color:var(--text-main);">EMAIL</strong></span>
+            <span>100% Malicious</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-header" style="margin-top: 1.5rem;">
+        <h4 class="card-title"><span>🔍</span> Threat Diagnostics & Explanation</h4>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button class="sample-pill" style="border-color:var(--accent-cyan); color:var(--accent-cyan);" onclick="askBotAboutLastScan()">
+            <span>🤖</span> Ask Chatbot to Explain Result
+          </button>
+          <a href="/history" class="sample-pill" style="text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+            <span>📜</span> View Full Database History ➔
+          </a>
+        </div>
+      </div>
+
+      <ul id="result-explanations" class="explanation-list"></ul>
+
+      <h4 class="card-title" style="margin-top: 1.5rem; font-size:1.05rem;"><span>⚠️</span> Technical Security Indicators</h4>
+      <div id="result-indicators" class="indicators-grid"></div>
+    </section>
+
+    <!-- Quick Navigation Callout to Database History -->
+    <div style="text-align: center; margin-top: 2rem; padding: 1.25rem; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md);">
+      <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+        Looking for all past analyzed scans?
+      </p>
+      <a href="/history" class="sample-pill" style="text-decoration: none; padding: 0.45rem 1.25rem; font-size: 0.88rem; font-weight: 600; color: var(--accent-cyan); border-color: var(--accent-cyan);">
+        <span>🕒</span> Access Recent History & Database Records ➔
+      </a>
+    </div>
+    </div> <!-- /#scanner-workspace -->
+  </main>
+
+  <!-- Floating Chatbot Toggle Button -->
+  <button class="floating-chat-toggle" onclick="toggleFloatingChat()" title="Open Cybersecurity Assistant">
+    💬
+  </button>
+
+  <!-- Floating Chatbot Popup -->
+  <div id="floating-chat-box" class="floating-chat-container">
+    <div class="chat-window" style="height: 100%;">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <span>🤖</span> CyberShield Assistant
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <div id="voice-toggle-btn" class="voice-status-pill">
+            <span>🔊</span> Voice: ON
+          </div>
+          <button onclick="toggleFloatingChat()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+        </div>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble bot">
+          👋 Hello! I am **CyberShield Assistant**. Ask me anything about phishing, safe URLs, security tips, or click below:
+          <div class="bubble-footer">
+            <span>CyberShield AI</span>
+            <button class="btn-speak" onclick="window.chatInstance.speak('Hello! I am CyberShield Assistant. Ask me anything about phishing, safe links, or security.')">🔊 Listen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-quick-pills">
+        <button class="chat-quick-pill" onclick="askQuick('tell me yourself')">👤 Tell me yourself</button>
+        <button class="chat-quick-pill" onclick="askQuick('Why was this flagged?')">🔍 Explain last scan</button>
+        <button class="chat-quick-pill" onclick="askQuick('What is phishing and how does it work?')">🎣 What is phishing?</button>
+        <button class="chat-quick-pill" onclick="askQuick('How to spot a fake link?')">🔗 Spot fake URLs</button>
+      </div>
+
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Ask a cybersecurity question or 'tell me yourself'..." />
+        <button id="btn-send-chat" class="btn-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="modal-overlay" onclick="if(event.target === this) closeProfileModal()">
+    <div class="profile-card">
+      <button class="modal-close" onclick="closeProfileModal()">✕</button>
+      <div class="profile-avatar-box">👨‍💻</div>
+      <h2 id="prof-name" class="profile-name">Cybersecurity & AI Developer</h2>
+      <div id="prof-title" class="profile-title">Full-Stack AI Security Specialist</div>
+      <p id="prof-bio" class="profile-bio">
+        Passionate AI and Cybersecurity innovator dedicated to engineering real-time threat detection systems, intelligent defense agents, and resilient web applications.
+      </p>
+      <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; text-align:center; margin-bottom:0.5rem; font-weight:700;">
+        Specialized Technical Competencies
+      </div>
+      <div id="prof-skills" class="skills-tags"></div>
+      <div class="profile-links">
+        <a id="prof-github" href="#" target="_blank" class="profile-link-btn"><span>🌐</span> GitHub</a>
+        <a id="prof-linkedin" href="#" target="_blank" class="profile-link-btn"><span>💼</span> LinkedIn</a>
+        <div class="profile-link-btn"><span id="prof-email">developer@aicyberdefense.local</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>CyberShield AI • Real-Time AI Phishing & Cyber Threat Detection Platform • Light Cyber Theme</p>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberShield AI - Cybersecurity AI Assistant</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <div class="brand-icon">🛡️</div>
+      <span>CyberShield <strong style="color:var(--accent-cyan);">AI</strong></span>
+    </a>
+
+    <div class="nav-links">
+      <a href="/#scanner" class="nav-link"><span>🔍</span> Threat Scanner</a>
+      <a href="/dashboard" class="nav-link"><span>📊</span> Analytics Dashboard</a>
+      <a href="/history" class="nav-link"><span>🕒</span> Recent History</a>
+      <a href="/chatbot" class="nav-link active"><span>💬</span> AI Assistant</a>
+    </div>
+
+    <!-- Right Corner: Theme Toggle & Admin Profile Icon -->
+    <div class="nav-right-actions">
+      <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Theme">
+        🌙
+      </button>
+
+      <div class="admin-profile-wrapper">
+        <button class="admin-avatar-btn" onclick="toggleAdminDropdown(event)" title="Admin Profile & Anomalies">
+          <span>👨‍💻</span>
+          <span class="admin-badge-indicator" title="Owner Device Active"></span>
+        </button>
+
+        <div id="admin-dropdown-menu" class="admin-dropdown-menu">
+          <div class="admin-dropdown-header">
+            <div class="admin-dropdown-name">
+              <span>🛡️</span> Cybersecurity Admin
+            </div>
+            <div id="admin-lock-status" class="admin-dropdown-status">
+              Checking device verification...
+            </div>
+          </div>
+          
+          <a href="/admin" class="admin-menu-item">
+            <span>⚙️</span> Admin & Anomaly Center
+          </a>
+          <button class="admin-menu-item" onclick="toggleAdminDropdown(); askQuick('tell me yourself');">
+            <span>👤</span> View Profile & Audio Intro
+          </button>
+          <a href="/dashboard" class="admin-menu-item">
+            <span>📊</span> Security Operations Telemetry
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="max-width: 900px;">
+    <header class="hero" style="margin-bottom: 1.5rem;">
+      <div class="hero-badge">🤖 Interactive Security Assistant & Voice Engine</div>
+      <h1 class="hero-title" style="font-size: 2.1rem;">CyberShield AI Assistant</h1>
+      <p class="hero-subtitle">
+        Ask anything about cybersecurity, request in-depth explanations for flagged threat scans, or ask <em>"tell me yourself"</em> to meet the creator with voice narration.
+      </p>
+    </header>
+
+    <!-- Main Full Chat Window -->
+    <div class="chat-window" style="height: 650px;">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <span>🤖</span> CyberShield Security Intelligence
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div id="voice-toggle-btn" class="voice-status-pill">
+            <span>🔊</span> Voice: ON
+          </div>
+          <button class="sample-pill" onclick="window.chatInstance.stopSpeech()"><span>⏹️</span> Stop Voice</button>
+        </div>
+      </div>
+
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-bubble bot">
+          👋 Hello! I am **CyberShield Assistant**, your cybersecurity co-pilot.
+          <br/><br/>
+          You can ask me:
+          <br/>• <strong>"Tell me yourself"</strong> — to view the developer profile and hear the audio introduction.
+          <br/>• <strong>"Why was this flagged?"</strong> — to hear a detailed explanation of your latest scan.
+          <br/>• Any question about phishing, malware, passwords, firewalls, and cyber defense best practices!
+          <div class="bubble-footer">
+            <span>CyberShield AI</span>
+            <button class="btn-speak" onclick="window.chatInstance.speak('Hello! I am CyberShield Assistant. Ask me anything about cybersecurity, explain your scan results, or ask me to introduce the developer.')">🔊 Listen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Pills -->
+      <div class="chat-quick-pills">
+        <button class="chat-quick-pill" onclick="askQuick('tell me yourself')">👤 Tell me yourself</button>
+        <button class="chat-quick-pill" onclick="askQuick('Why was this flagged?')">🔍 Explain last scan</button>
+        <button class="chat-quick-pill" onclick="askQuick('What is phishing and how does it work?')">🎣 What is phishing?</button>
+        <button class="chat-quick-pill" onclick="askQuick('How to spot a fake link?')">🔗 Spot fake URLs</button>
+        <button class="chat-quick-pill" onclick="askQuick('What should I do if I clicked a phishing link?')">🚨 Clicked a fake link?</button>
+        <button class="chat-quick-pill" onclick="askQuick('What is 2FA and why should I use it?')">🔑 Explain 2FA</button>
+        <button class="chat-quick-pill" onclick="askQuick('Explain SQL Injection and mitigation')">💻 SQL Injection</button>
+      </div>
+
+      <div class="chat-input-row">
+        <input 
+          type="text" 
+          id="chat-input" 
+          class="chat-input" 
+          placeholder="Ask any question, 'tell me yourself', or 'explain my scan'..." 
+          autofocus
+        />
+        <button id="btn-send-chat" class="btn-send">Send</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="modal-overlay" onclick="if(event.target === this) closeProfileModal()">
+    <div class="profile-card">
+      <button class="modal-close" onclick="closeProfileModal()">✕</button>
+      <div class="profile-avatar-box">👨‍💻</div>
+      <h2 id="prof-name" class="profile-name">Cybersecurity & AI Developer</h2>
+      <div id="prof-title" class="profile-title">Full-Stack AI Security Specialist</div>
+      <p id="prof-bio" class="profile-bio"></p>
+      <div style="font-size:0.8rem; color:var(--text-dim); text-transform:uppercase; text-align:center; margin-bottom:0.5rem; font-weight:700;">
+        Specialized Technical Competencies
+      </div>
+      <div id="prof-skills" class="skills-tags"></div>
+      <div class="profile-links">
+        <a id="prof-github" href="#" target="_blank" class="profile-link-btn">GitHub</a>
+        <a id="prof-linkedin" href="#" target="_blank" class="profile-link-btn">LinkedIn</a>
+        <div class="profile-link-btn"><span id="prof-email">developer@aicyberdefense.local</span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>CyberShield AI • Real-Time Voice-Enabled Security Assistant</p>
+  </footer>
+
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>
